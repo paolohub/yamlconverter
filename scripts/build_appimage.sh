@@ -160,12 +160,18 @@ else
 fi
 
 # Pulizia file temporanei (opzionale)
-read -p "Vuoi pulire i file temporanei di build? (y/n) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    print_step "Cleanup" "Rimozione file temporanei..."
-    rm -rf build dist AppDir
-    echo "  - File temporanei rimossi"
+# Skip interactive prompt in CI environments
+if [ -z "$CI" ]; then
+    read -p "Vuoi pulire i file temporanei di build? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        print_step "Cleanup" "Rimozione file temporanei..."
+        rm -rf build dist AppDir
+        echo "  - File temporanei rimossi"
+    fi
+else
+    # In CI, don't cleanup - artifacts will be collected
+    echo "Running in CI environment - skipping cleanup"
 fi
 
 echo ""
