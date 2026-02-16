@@ -134,7 +134,7 @@ fi
 
 # Crea AppImage
 print_step "7/7" "Creazione AppImage finale..."
-ARCH=x86_64 ./appimagetool-x86_64.AppImage AppDir YAMLExcelConverter-x86_64.AppImage
+ARCH=x86_64 ./appimagetool-x86_64.AppImage --appimage-extract-and-run AppDir YAMLExcelConverter-x86_64.AppImage
 
 if [ -f "YAMLExcelConverter-x86_64.AppImage" ]; then
     echo ""
