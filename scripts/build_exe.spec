@@ -13,8 +13,8 @@ from pathlib import Path
 
 block_cipher = None
 
-# Percorso root del progetto (parent directory di scripts/)
-root_dir = Path('.').absolute().parent
+# Percorso root del progetto (build.bat fa pushd alla root prima di eseguire)
+root_dir = Path(os.getcwd()).absolute()
 src_dir = root_dir / 'src'
 
 # Trova il percorso di tkinterdnd2 per includere file nativi

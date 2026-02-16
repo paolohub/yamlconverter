@@ -1,5 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
+set "SCRIPT_DIR=%~dp0"
+for %%I in ("%SCRIPT_DIR%..") do set "PROJECT_ROOT=%%~fI"
+pushd "%PROJECT_ROOT%"
+
 REM ========================================
 REM  YAML Excel Converter - Build Script
 REM  Versione Ottimizzata: 11.5 MB
@@ -11,22 +15,26 @@ echo ========================================
 echo.
 
 echo [1/4] Attivazione virtual environment...
-call ..\.venv\Scripts\activate.bat
-if errorlevel 1 (
-    echo ERRORE: Virtual environment non trovato!
-    echo Creare con: python -m venv .venv
-    pause
-    exit /b 1
+if exist ".venv\Scripts\activate.bat" (
+    call ".venv\Scripts\activate.bat"
+    if errorlevel 1 (
+        echo ERRORE: impossibile attivare il virtual environment.
+        if not defined GITHUB_ACTIONS pause
+        popd
+        exit /b 1
+    )
+) else (
+    echo AVVISO: Virtual environment non trovato, uso ambiente Python corrente.
 )
 
 echo.
 echo [2/4] Pulizia build precedenti...
-if exist ..\build (
-    rmdir /s /q ..\build
+if exist build (
+    rmdir /s /q build
     echo   - Rimossa cartella build
 )
-if exist ..\dist (
-    rmdir /s /q ..\dist
+if exist dist (
+    rmdir /s /q dist
     echo   - Rimossa cartella dist
 )
 
@@ -34,26 +42,27 @@ echo.
 echo [3/4] Creazione eseguibile ottimizzato...
 echo   - Escluse dipendenze: pandas, numpy (25+ MB risparmiati)
 echo   - Solo formato custom secrets.rlist
-pyinstaller build_exe.spec --clean --distpath=..\dist --workpath=..\build\build_exe
+pyinstaller scripts\build_exe.spec --clean --distpath=dist --workpath=build\build_exe
 if errorlevel 1 (
     echo.
     echo ERRORE durante la compilazione!
-    pause
+    if not defined GITHUB_ACTIONS pause
+    popd
     exit /b 1
 )
 
 echo.
 echo [4/4] Verifica build...
-if exist ..\dist\YAMLExcelConverter.exe (
+if exist dist\YAMLExcelConverter.exe (
     echo.
     echo ========================================
     echo BUILD COMPLETATO CON SUCCESSO!
     echo ========================================
-    echo Eseguibile: ..\dist\YAMLExcelConverter.exe
+    echo Eseguibile: dist\YAMLExcelConverter.exe
     echo.
     
     REM Calcola dimensione file in MB
-    for %%F in (..\dist\YAMLExcelConverter.exe) do (
+    for %%F in (dist\YAMLExcelConverter.exe) do (
         set fileSize=%%~zF
     )
     
@@ -79,4 +88,5 @@ if exist ..\dist\YAMLExcelConverter.exe (
 )
 echo.
 
-pause
+popd
+if not defined GITHUB_ACTIONS pause

@@ -13,8 +13,7 @@ from pathlib import Path
 
 block_cipher = None
 
-# Percorso root del progetto (parent directory di scripts/)
-# Nota: build_appimage.sh cambia directory alla root del progetto prima di eseguire pyinstaller
+# Percorso root del progetto (build script fa cd alla root prima di eseguire)
 root_dir = Path(os.getcwd()).absolute()
 src_dir = root_dir / 'src'
 

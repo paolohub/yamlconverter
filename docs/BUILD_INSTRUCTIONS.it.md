@@ -13,7 +13,7 @@ L'eseguibile sarà disponibile in `dist/YAMLExcelConverter.exe` (~11.5 MB)
 ## Requisiti Build
 
 - Python 3.8+
-- Virtual environment in `.venv/`
+- Ambiente Python con dipendenze del progetto (`.venv/` consigliato, non obbligatorio)
 - PyInstaller installato: `pip install pyinstaller`
 - Tutte le dipendenze da `requirements.txt`
 
@@ -42,10 +42,12 @@ scripts\build.bat
 
 ### scripts/build.bat
 Script batch automatico che:
-1. Attiva virtual environment
+1. Usa `.venv` se disponibile, altrimenti usa l'ambiente Python corrente
 2. Pulisce build precedenti
 3. Esegue PyInstaller con configurazione ottimizzata
 4. Verifica successo e mostra info eseguibile
+
+Lo script risolve i path dalla root del progetto, quindi funziona sia in locale che in CI.
 
 ### scripts/build_exe.spec
 Configurazione PyInstaller con:
@@ -68,7 +70,7 @@ Per usarlo, decommenta `version_file=version_info.txt` in scripts/build_exe.spec
 Se preferisci eseguire manualmente:
 
 ```batch
-# Attiva environment
+# Opzionale: attiva environment
 .venv\Scripts\activate
 
 # Pulisci
@@ -100,7 +102,10 @@ pyinstaller scripts/build_exe.spec --clean
 
 ## Troubleshooting
 
-### Errore: "Virtual environment non trovato"
+### Avviso: "Virtual environment non trovato"
+`scripts\build.bat` può continuare usando l'ambiente Python corrente.
+Se preferisci un ambiente isolato:
+
 ```batch
 python -m venv .venv
 .venv\Scripts\activate
@@ -119,6 +124,12 @@ Verifica che `pyi_rth_tkinterdnd2.py` sia presente e referenziato in build_exe.s
 
 ### Build lento
 Prima build può richiedere 2-5 minuti. Build successive sono più veloci grazie alla cache.
+
+## Note CI (GitHub Actions)
+
+- I job Windows e Linux usano `actions/setup-python` con cache pip.
+- I job di build verificano gli artifact prima dell'upload.
+- Il job release verifica gli asset scaricati prima della pubblicazione.
 
 ## Customizzazioni
 

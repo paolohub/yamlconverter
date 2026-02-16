@@ -12,6 +12,7 @@ jobs:
   build-windows:
     name: Build Windows Executable
     runs-on: windows-latest
+    timeout-minutes: 25
     
     steps:
     - name: Checkout code
@@ -21,19 +22,27 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
+        cache: 'pip'
+        cache-dependency-path: requirements.txt
     
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pyinstaller
-        
-    - name: Create virtual environment
-      run: python -m venv .venv
-      
+  
     - name: Build executable
       run: |
         scripts\build.bat
+
+    - name: Verify Windows executable
+      shell: pwsh
+      run: |
+        if (-not (Test-Path "dist/YAMLExcelConverter.exe")) {
+          throw "Windows executable not found at dist/YAMLExcelConverter.exe"
+        }
+        $file = Get-Item "dist/YAMLExcelConverter.exe"
+        Write-Host "Windows executable size: $([math]::Round($file.Length / 1MB, 2)) MB"
     
     - name: Upload Windows executable
       uses: actions/upload-artifact@v4
@@ -45,6 +54,7 @@ jobs:
   build-linux:
     name: Build Linux AppImage
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     
     steps:
     - name: Checkout code
@@ -54,6 +64,8 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
+        cache: 'pip'
+        cache-dependency-path: requirements.txt
     
     - name: Install system dependencies
       run: |
@@ -70,6 +82,11 @@ jobs:
       run: |
         chmod +x scripts/build_appimage.sh
         scripts/build_appimage.sh
+
+    - name: Verify Linux AppImage
+      run: |
+        test -f YAMLExcelConverter-x86_64.AppImage
+        ls -lh YAMLExcelConverter-x86_64.AppImage
     
     - name: Upload Linux AppImage
       uses: actions/upload-artifact@v4
@@ -83,6 +100,9 @@ jobs:
     needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     if: github.event_name == 'release'
+    timeout-minutes: 10
+    permissions:
+      contents: write
     
     steps:
     - name: Download Windows artifact
@@ -94,6 +114,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: YAMLExcelConverter-Linux
+
+    - name: Verify release assets
+      run: |
+        test -f YAMLExcelConverter.exe
+        test -f YAMLExcelConverter-x86_64.AppImage
+        ls -lh YAMLExcelConverter.exe YAMLExcelConverter-x86_64.AppImage
     
     - name: Upload Release Assets
       uses: softprops/action-gh-release@v1

@@ -53,7 +53,7 @@ Python application with graphical interface to convert YAML configuration files 
 
 1. **Clone or download the project**
 
-2. **Create a virtual environment (recommended):**
+2. **(Recommended) Create a virtual environment:**
    ```bash
    python -m venv .venv
    .venv\Scripts\activate  # Windows
@@ -64,6 +64,8 @@ Python application with graphical interface to convert YAML configuration files 
    ```bash
    pip install -r requirements.txt
    ```
+
+`scripts\build.bat` can use `.venv` if available, otherwise it uses the current Python environment.
 
 ## Usage
 
@@ -281,13 +283,12 @@ Connections:
 To create the optimized Windows executable (11.5 MB):
 
 ```bash
-# Automatic build (recommended) - run from scripts/ directory
-cd scripts
-build.bat
+# Automatic build (recommended) - run from project root
+scripts\build.bat
 ```
 
 The build script:
-- Activates virtual environment
+- Uses `.venv` if available (otherwise uses current Python environment)
 - Cleans previous builds
 - Creates executable with PyInstaller
 - Verifies success with size info
@@ -300,9 +301,8 @@ For complete instructions and troubleshooting, see [docs/BUILD_INSTRUCTIONS.md](
 # Install PyInstaller (if needed)
 pip install pyinstaller
 
-# Build with optimized spec file (from scripts/ directory)
-cd scripts
-pyinstaller build_exe.spec --clean --distpath=..\dist --workpath=..\build\build_exe
+# Build with optimized spec file (from project root)
+pyinstaller scripts/build_exe.spec --clean --distpath=dist --workpath=build/build_exe
 ```
 
 The executable will be in `dist/YAMLExcelConverter.exe`

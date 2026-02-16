@@ -53,7 +53,7 @@ Applicazione Python con interfaccia grafica per convertire file di configurazion
 
 1. **Clona o scarica il progetto**
 
-2. **Crea un virtual environment (raccomandato):**
+2. **(Raccomandato) Crea un virtual environment:**
    ```bash
    python -m venv .venv
    .venv\Scripts\activate  # Windows
@@ -64,6 +64,8 @@ Applicazione Python con interfaccia grafica per convertire file di configurazion
    ```bash
    pip install -r requirements.txt
    ```
+
+`scripts\build.bat` usa `.venv` se disponibile, altrimenti usa l'ambiente Python corrente.
 
 ## Utilizzo
 
@@ -281,13 +283,12 @@ Connections:
 Per creare l'eseguibile Windows ottimizzato (11.5 MB):
 
 ```bash
-# Build automatico (raccomandato) - eseguire dalla directory scripts/
-cd scripts
-build.bat
+# Build automatico (raccomandato) - eseguire dalla root del progetto
+scripts\build.bat
 ```
 
 Il build script:
-- Attiva virtual environment
+- Usa `.venv` se disponibile (altrimenti usa l'ambiente Python corrente)
 - Pulisce build precedenti
 - Crea eseguibile con PyInstaller
 - Verifica successo con info dimensione
@@ -300,9 +301,8 @@ Per istruzioni complete e troubleshooting, vedi [docs/BUILD_INSTRUCTIONS.md](doc
 # Installa PyInstaller (se necessario)
 pip install pyinstaller
 
-# Build con spec file ottimizzato (dalla directory scripts/)
-cd scripts
-pyinstaller build_exe.spec --clean --distpath=..\dist --workpath=..\build\build_exe
+# Build con spec file ottimizzato (dalla root del progetto)
+pyinstaller scripts/build_exe.spec --clean --distpath=dist --workpath=build/build_exe
 ```
 
 L'eseguibile sarà in `dist/YAMLExcelConverter.exe`
