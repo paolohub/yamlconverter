@@ -1,0 +1,100 @@
+# -*- mode: python ; coding: utf-8 -*-
+"""
+Configurazione PyInstaller per YAML Excel Converter
+Versione ottimizzata: 11.5 MB (riduzione 69% rispetto a versione con pandas)
+
+Ottimizzazioni applicate:
+- Esclusi pandas e numpy (25+ MB risparmiati)
+- Solo formato custom secrets.rlist
+- Librerie minimali: openpyxl, pyyaml, tkinterdnd2, python-gnupg
+"""
+import os
+from pathlib import Path
+
+block_cipher = None
+
+# Percorso root del progetto (parent directory di scripts/)
+root_dir = Path('.').absolute().parent
+src_dir = root_dir / 'src'
+
+# Trova il percorso di tkinterdnd2 per includere file nativi
+import tkinterdnd2
+tkdnd_path = Path(tkinterdnd2.__file__).parent / 'tkdnd'
+
+a = Analysis(
+    [str(root_dir / 'run.py')],
+    pathex=[str(src_dir)],
+    binaries=[],
+    datas=[
+        # File nativi tkinterdnd2 per drag & drop su Windows
+        (str(tkdnd_path / 'win64'), 'tkdnd/win64'),
+        # Traduzioni interfaccia
+        (str(root_dir / 'translations'), 'translations'),
+    ],
+    hiddenimports=[
+        # Dipendenze core
+        'tkinterdnd2',      # Drag & drop interface
+        'gnupg',            # GPG encryption/decryption
+        'yaml',             # YAML parsing
+        'openpyxl',         # Excel manipulation (sostituisce pandas)
+        # Package yamlconverter
+        'yamlconverter',
+        'yamlconverter.gui',
+        'yamlconverter.gui.main',
+        'yamlconverter.converters',
+        'yamlconverter.converters.custom_yaml_to_excel',
+        'yamlconverter.converters.custom_excel_to_yaml',
+        'yamlconverter.utils',
+        'yamlconverter.utils.gpg_utils',
+        'yamlconverter.utils.i18n',
+    ],
+    hookspath=[str(root_dir / 'scripts' / 'hooks')],  # Hook personalizzati per correggere warning tkinterdnd2
+    hooksconfig={},
+    runtime_hooks=[str(root_dir / 'scripts' / 'pyi_rth_tkinterdnd2.py')],
+    excludes=[
+        # Escludi librerie pesanti non necessarie
+        'pandas',           # 15+ MB (sostituito con openpyxl)
+        'numpy',            # 10+ MB (non necessario)
+        'matplotlib',       # Non usato
+        'scipy',            # Non usato
+        'PIL',              # Non usato
+        'Pillow',           # Non usato
+        'pytest',           # Testing - non necessario in produzione
+        'IPython',          # Non usato
+        'notebook',         # Non usato
+        'jupyter',          # Non usato
+        # Moduli standard rimossi (usavano pandas)
+        'yaml_to_excel',    # Rimosso: usava pandas
+        'excel_to_yaml',    # Rimosso: usava pandas
+    ],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    [],
+    name='YAMLExcelConverter',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,                    # Compressione UPX attiva
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=False,               # GUI mode - nessuna console
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    icon=None,                   # Opzionale: aggiungi .ico per icona personalizzata
+    version_file=None,           # Opzionale: aggiungi file version per info eseguibile
+)
