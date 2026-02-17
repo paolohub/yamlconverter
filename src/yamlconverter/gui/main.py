@@ -20,12 +20,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import os
+import platform
 import traceback
 from tkinterdnd2 import TkinterDnD, DND_FILES
 from yamlconverter.converters.custom_yaml_to_excel import custom_yaml_to_excel
 from yamlconverter.converters.custom_excel_to_yaml import custom_excel_to_yaml
 from yamlconverter.utils.gpg_utils import decrypt_file, encrypt_file
 from yamlconverter.utils.i18n import get_i18n, set_language
+
+# Prova a importare sv_ttk per temi moderni (opzionale)
+try:
+    import sv_ttk
+    SV_TTK_AVAILABLE = True
+except ImportError:
+    SV_TTK_AVAILABLE = False
 
 
 class YAMLExcelConverterApp:
@@ -36,6 +44,9 @@ class YAMLExcelConverterApp:
         self.root.geometry("700x600")
         self.root.minsize(700, 600)
         self.root.resizable(True, True)
+        
+        # Configura il tema moderno prima di creare i widget
+        self.configure_modern_theme()
         
         # Variabili
         self.input_file = tk.StringVar()
@@ -48,6 +59,70 @@ class YAMLExcelConverterApp:
         self.current_language = tk.StringVar(value=self.i18n.language)
         
         self.setup_ui()
+    
+    def configure_modern_theme(self):
+        """Configura un tema moderno in base al sistema operativo"""
+        system = platform.system()
+        style = ttk.Style(self.root)
+        
+        # Su Linux, prova a usare sv_ttk o temi nativi moderni
+        if system == 'Linux':
+            if SV_TTK_AVAILABLE:
+                try:
+                    # Usa il tema Sun Valley (moderno e pulito)
+                    sv_ttk.set_theme("light")
+                    print("[INFO] Applicato tema sv_ttk (Sun Valley) - GUI moderna")
+                    return
+                except Exception as e:
+                    print(f"[WARN] Impossibile applicare sv_ttk: {e}")
+            
+            # Fallback: prova i temi ttk nativi disponibili su Linux
+            available_themes = style.theme_names()
+            print(f"[INFO] Temi disponibili: {available_themes}")
+            
+            # Priorità ai temi più moderni
+            preferred_themes = ['arc', 'breeze', 'clearlooks', 'plastik', 'clam', 'alt']
+            for theme in preferred_themes:
+                if theme in available_themes:
+                    try:
+                        style.theme_use(theme)
+                        print(f"[INFO] Applicato tema: {theme}")
+                        
+                        # Personalizza alcuni colori per un aspetto più moderno
+                        if theme in ['clam', 'alt']:
+                            style.configure('TButton', padding=6)
+                            style.configure('TEntry', padding=5)
+                            style.configure('TLabel', padding=3)
+                        
+                        return
+                    except Exception as e:
+                        print(f"[WARN] Impossibile applicare tema {theme}: {e}")
+                        continue
+            
+            print(f"[INFO] Uso tema predefinito: {style.theme_use()}")
+        
+        elif system == 'Windows':
+            # Su Windows, usa vista o sv_ttk se disponibile
+            if SV_TTK_AVAILABLE:
+                try:
+                    sv_ttk.set_theme("light")
+                    print("[INFO] Applicato tema sv_ttk (Sun Valley)")
+                    return
+                except:
+                    pass
+            
+            # Fallback: tema Windows nativo moderno
+            available_themes = style.theme_names()
+            if 'vista' in available_themes:
+                style.theme_use('vista')
+            elif 'winnative' in available_themes:
+                style.theme_use('winnative')
+        
+        elif system == 'Darwin':  # macOS
+            # Su macOS usa aqua (tema nativo)
+            available_themes = style.theme_names()
+            if 'aqua' in available_themes:
+                style.theme_use('aqua')
     
     def setup_ui(self):
         # Frame principale
@@ -634,7 +709,6 @@ def main():
     """Funzione principale"""
     import sys
     import os
-    import platform
     
     # Fix per PyInstaller: configura il percorso di tkdnd
     if getattr(sys, 'frozen', False):
@@ -671,6 +745,12 @@ def main():
         tkinterdnd2.TkinterDnD.Tk.__init__ = patched_init
     
     root = TkinterDnD.Tk()
+    
+    # Log informazioni sul tema per debug
+    system = platform.system()
+    print(f"[INFO] Sistema operativo: {system}")
+    print(f"[INFO] sv_ttk disponibile: {SV_TTK_AVAILABLE}")
+    
     app = YAMLExcelConverterApp(root)
     root.mainloop()
 
