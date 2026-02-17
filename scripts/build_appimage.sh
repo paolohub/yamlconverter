@@ -103,15 +103,12 @@ Categories=Utility;Office;
 Terminal=false
 EOF
 
-# Crea un'icona semplice (PNG 256x256) - puoi sostituirla con una tua
-# Per ora creiamo un'icona placeholder usando ImageMagick se disponibile
-if command -v convert &> /dev/null; then
-    convert -size 256x256 xc:lightblue \
-            -gravity center -pointsize 48 -fill darkblue \
-            -annotate +0+0 'YAML\n↕\nExcel' \
-            AppDir/usr/share/icons/hicolor/256x256/apps/yamlexcelconverter.png
+# Copia l'icona del progetto
+if [ -f "icons/icon.png" ]; then
+    cp icons/icon.png AppDir/usr/share/icons/hicolor/256x256/apps/yamlexcelconverter.png
+    echo "  - Icona copiata da icons/icon.png"
 else
-    print_warning "ImageMagick non trovato. Icona non creata. Installare con: sudo apt-get install imagemagick"
+    print_warning "Icona non trovata in icons/icon.png. Generarla con: python scripts/generate_icon.py"
     # Crea un file placeholder
     touch AppDir/usr/share/icons/hicolor/256x256/apps/yamlexcelconverter.png
 fi

@@ -133,10 +133,10 @@ Connections:
 **Formato Excel (3 colonne: Name/Secret/Value):**
 | Name | Secret | Value |
 |------|--------|-------|
-| EXAMPLE_CONNECTION_1[0] | $$ENDPOINT$$ | https://... |
-| EXAMPLE_CONNECTION_1[1] | $$USERNAME$$ | Test |
-| EXAMPLE_CONNECTION_1[2] | $$PASSWORD$$ | pass |
-| EXAMPLE_CONNECTION_2[0] | $$ENDPOINT$$ | http://... |
+| EXAMPLE_CONNECTION_1[0] | `$$ENDPOINT$$` | https://... |
+| EXAMPLE_CONNECTION_1[1] | `$$USERNAME$$` | Test |
+| EXAMPLE_CONNECTION_1[2] | `$$PASSWORD$$` | pass |
+| EXAMPLE_CONNECTION_2[0] | `$$ENDPOINT$$` | http://... |
 | ... | ... | ... |
 
 **Regole di indentazione YAML:**

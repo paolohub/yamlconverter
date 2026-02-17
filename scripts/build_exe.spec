@@ -95,6 +95,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None,                   # Opzionale: aggiungi .ico per icona personalizzata
+    icon=str(root_dir / 'icons' / 'icon.ico'),  # Icona personalizzata Windows
     version_file=None,           # Opzionale: aggiungi file version per info eseguibile
 )
